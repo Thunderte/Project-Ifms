@@ -1,25 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { isAxiosError } from 'axios';
 import { ArrowLeft, Database, Loader2, LogIn, Server, Shield } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { useAuth } from '../contexts/AuthContext';
 
 const authDefaults = {
-  endpoint: 'https://api-auth.ifms.dev/v1/sessions',
-  tenant: 'ifms-campo-grande',
-  grantType: 'password',
-  timeoutMs: 8000,
-  rememberMe: true,
   email: 'visitante@ifms.edu.br',
-  password: 'ifms@123',
+  senha: 'ifms@123',
 };
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState(authDefaults.email);
-  const [password, setPassword] = useState(authDefaults.password);
-  const [rememberMe, setRememberMe] = useState(authDefaults.rememberMe);
+  const [password, setPassword] = useState(authDefaults.senha);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isReady, setIsReady] = useState(false);
@@ -38,26 +36,25 @@ export function LoginPage() {
       return;
     }
 
-    const payload = {
-      email,
-      password,
-      tenant: authDefaults.tenant,
-      grant_type: authDefaults.grantType,
-      remember_me: rememberMe,
-    };
-
     setLoading(true);
     try {
-      // Futuro: substituir pela chamada real de autenticacao externa.
-      await new Promise(resolve => setTimeout(resolve, 900));
-
-      console.info('Payload de autenticacao preparado', {
-        endpoint: authDefaults.endpoint,
-        timeoutMs: authDefaults.timeoutMs,
-        payload,
-      });
-
+      await login({ email, senha: password }, rememberMe);
       navigate('/inicio');
+    } catch (err) {
+      if (isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 401 || status === 403) {
+          setErrorMessage('E-mail ou senha incorretos.');
+        } else if (status && status >= 500) {
+          setErrorMessage('Erro no servidor. Tente novamente em instantes.');
+        } else if (err.code === 'ECONNABORTED' || !err.response) {
+          setErrorMessage('Nao foi possivel conectar ao servidor. Verifique sua conexao.');
+        } else {
+          setErrorMessage('Ocorreu um erro inesperado. Tente novamente.');
+        }
+      } else {
+        setErrorMessage('Ocorreu um erro inesperado. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -76,12 +73,11 @@ export function LoginPage() {
       <div className="absolute -right-20 bottom-[-6rem] h-96 w-96 rounded-full bg-[#28a36b]/20 blur-3xl animate-pulse" />
 
       <div
-        className={`relative mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 md:px-8 transition-all duration-700 ${
+        className={`relative mx-auto flex min-h-screen w-full max-w-lg items-center justify-center px-4 py-10 md:px-8 transition-all duration-700 ${
           isReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         }`}
       >
-        <div className="grid w-full gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="rounded-3xl border border-white/70 bg-white/85 p-6 md:p-10 shadow-[0_24px_80px_-36px_rgba(31,60,104,0.65)] backdrop-blur-xl">
+        <section className="w-full rounded-3xl border border-white/70 bg-white/85 p-6 md:p-10 shadow-[0_24px_80px_-36px_rgba(31,60,104,0.65)] backdrop-blur-xl">
             <Button
               type="button"
               variant="ghost"
@@ -192,62 +188,7 @@ export function LoginPage() {
             <p className="mt-6 text-xs text-[#5f6d82] leading-relaxed">
               Ao autenticar, a aplicacao utilizara o endpoint padrao configurado nesta tela ate a API oficial ser integrada.
             </p>
-          </section>
-
-          <aside className="rounded-3xl border border-[#cddbef] bg-[#f8fbff] p-6 md:p-8 shadow-[0_20px_60px_-45px_rgba(31,60,104,0.75)]">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#e6eefb] text-[#1f3c68] px-4 py-2 text-xs font-semibold tracking-wide uppercase">
-              <Shield className="w-4 h-4" />
-              Modo integracao futura
-            </div>
-
-            <h2
-              className="mt-5 text-3xl font-semibold text-[#1b355b]"
-              style={{ fontFamily: 'var(--font-heading, "Trebuchet MS", sans-serif)' }}
-            >
-              Conector da API de autenticacao
-            </h2>
-
-            <p className="mt-3 text-sm text-[#5f6d82]">
-              Os parametros abaixo representam a estrutura default que sera enviada para o provedor externo de login quando a integracao estiver ativa.
-            </p>
-
-            <div className="mt-6 space-y-4">
-              <div className="rounded-2xl border border-[#d6e2f3] bg-white px-4 py-3">
-                <div className="text-xs uppercase tracking-wide text-[#55739b] flex items-center gap-2">
-                  <Server className="w-4 h-4" />
-                  Endpoint default
-                </div>
-                <p className="mt-1 text-sm font-medium text-[#1f3c68] break-all">{authDefaults.endpoint}</p>
-              </div>
-
-              <div className="rounded-2xl border border-[#d6e2f3] bg-white px-4 py-3">
-                <div className="text-xs uppercase tracking-wide text-[#55739b] flex items-center gap-2">
-                  <Database className="w-4 h-4" />
-                  Tenant e metodo
-                </div>
-                <p className="mt-1 text-sm text-[#1f3c68]">Tenant: {authDefaults.tenant}</p>
-                <p className="text-sm text-[#1f3c68]">Grant type: {authDefaults.grantType}</p>
-              </div>
-
-              <div className="rounded-2xl border border-[#d6e2f3] bg-white px-4 py-3">
-                <p className="text-sm text-[#1f3c68]">Timeout padrao: {authDefaults.timeoutMs}ms</p>
-                <p className="text-sm text-[#1f3c68]">Remember me default: {rememberMe ? 'true' : 'false'}</p>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-[#10253f] p-4 text-xs text-[#d4e2f8]">
-              <p className="text-white font-semibold mb-2">Preview do payload</p>
-              <pre className="whitespace-pre-wrap leading-relaxed">
-{`{
-  "email": "${email}",
-  "tenant": "${authDefaults.tenant}",
-  "grant_type": "${authDefaults.grantType}",
-  "remember_me": ${rememberMe}
-}`}
-              </pre>
-            </div>
-          </aside>
-        </div>
+        </section>
       </div>
 
       <div className="relative text-center pb-6 text-xs text-[#5f6d82]">
