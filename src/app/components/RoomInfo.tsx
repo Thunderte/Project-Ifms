@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Home, ImageIcon, ListOrdered, MapPin, Plus, Save, User, Users } from 'lucide-react';
+import { ChevronDown, Home, ImageIcon, ListOrdered, MapPin, Plus, Save, User, Users } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -15,6 +15,7 @@ interface RoomInfoProps {
   floorName: string;
   roomTile?: Tile | null;
   saving?: boolean;
+  collapseSignal?: number;
   onSaveDetails?: (roomLabel: string, detailsPatch: RoomDetails) => Promise<void>;
 }
 
@@ -40,6 +41,7 @@ export function RoomInfo({
   floorName,
   roomTile,
   saving = false,
+  collapseSignal = 0,
   onSaveDetails,
 }: RoomInfoProps) {
   const [formData, setFormData] = useState({
@@ -50,6 +52,7 @@ export function RoomInfo({
   });
   const [savingDetails, setSavingDetails] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [isDetailsFormOpen, setIsDetailsFormOpen] = useState(false);
 
   useEffect(() => {
     if (!roomId) {
@@ -71,6 +74,10 @@ export function RoomInfo({
     });
     setFeedbackMessage('');
   }, [roomId, roomTile, blockId, floorName]);
+
+  useEffect(() => {
+    setIsDetailsFormOpen(false);
+  }, [collapseSignal, roomId]);
 
   if (!roomId) {
     return (
@@ -108,6 +115,7 @@ export function RoomInfo({
         directions,
       });
       setFeedbackMessage('Detalhes da sala salvos com sucesso.');
+      setIsDetailsFormOpen(false);
     } finally {
       setSavingDetails(false);
     }
@@ -146,85 +154,6 @@ export function RoomInfo({
             </Badge>
           </div>
         </div>
-
-        {/* Formulário de configuração dinâmica */}
-        <form onSubmit={handleSaveDetails} className="space-y-4 border-t pt-5">
-          <h3 className="font-semibold text-base text-[#1f3c68]">Detalhes dinâmicos da sala</h3>
-
-          <div className="space-y-2">
-            <Label htmlFor="room-photo" className="flex items-center gap-2 text-sm">
-              <ImageIcon className="w-4 h-4" />
-              Foto (URL)
-            </Label>
-            <Input
-              id="room-photo"
-              placeholder="https://..."
-              value={formData.photoUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, photoUrl: e.target.value }))}
-            />
-          </div>
-
-          <div className="rounded-lg overflow-hidden border bg-gray-50">
-            <ImageWithFallback
-              src={formData.photoUrl || DEFAULT_PHOTO}
-              alt={roomId}
-              className="w-full h-36 object-cover"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="room-description" className="text-sm">Descricao da sala</Label>
-            <Textarea
-              id="room-description"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Exemplo: laboratorio com 30 maquinas e projetor"
-              className="min-h-20"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="room-location" className="flex items-center gap-2 text-sm">
-              <MapPin className="w-4 h-4" />
-              Localizacao
-            </Label>
-            <Input
-              id="room-location"
-              value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              placeholder="Exemplo: Bloco A, Terreo"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="room-directions" className="flex items-center gap-2 text-sm">
-              <ListOrdered className="w-4 h-4" />
-              Passos para chegar (1 por linha)
-            </Label>
-            <Textarea
-              id="room-directions"
-              value={formData.directionsText}
-              onChange={(e) => setFormData(prev => ({ ...prev, directionsText: e.target.value }))}
-              placeholder={'Entre pelo portao principal\nSiga para o Bloco A\n...'}
-              className="min-h-28"
-            />
-          </div>
-
-          {feedbackMessage && (
-            <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
-              {feedbackMessage}
-            </p>
-          )}
-
-          <Button
-            type="submit"
-            className="w-full bg-[#1f3c68] hover:bg-[#2d4d7f] text-white"
-            disabled={saving || savingDetails}
-          >
-            <Save className="w-4 h-4" />
-            {saving || savingDetails ? 'Salvando detalhes...' : 'Salvar Detalhes da Sala'}
-          </Button>
-        </form>
 
         {/* Reservations */}
         <div className="border-t pt-6">
@@ -266,6 +195,102 @@ export function RoomInfo({
               </Button>
             }
           />
+        </div>
+
+        {/* Formulario de configuracao dinamica */}
+        <div className="border-t pt-6">
+          <button
+            type="button"
+            onClick={() => setIsDetailsFormOpen(open => !open)}
+            aria-expanded={isDetailsFormOpen}
+            className="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-[#1f3c68] hover:bg-gray-100 transition-colors"
+          >
+            <span>Detalhes dinamicos da sala</span>
+            <ChevronDown
+              className={[
+                'w-4 h-4 transition-transform',
+                isDetailsFormOpen ? 'rotate-180' : '',
+              ].join(' ')}
+            />
+          </button>
+
+          {feedbackMessage && (
+            <p className="mt-3 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
+              {feedbackMessage}
+            </p>
+          )}
+
+          {isDetailsFormOpen && (
+            <form onSubmit={handleSaveDetails} className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="room-photo" className="flex items-center gap-2 text-sm">
+                  <ImageIcon className="w-4 h-4" />
+                  Foto (URL)
+                </Label>
+                <Input
+                  id="room-photo"
+                  placeholder="https://..."
+                  value={formData.photoUrl}
+                  onChange={(e) => setFormData(prev => ({ ...prev, photoUrl: e.target.value }))}
+                />
+              </div>
+
+              <div className="rounded-lg overflow-hidden border bg-gray-50">
+                <ImageWithFallback
+                  src={formData.photoUrl || DEFAULT_PHOTO}
+                  alt={roomId}
+                  className="w-full h-36 object-cover"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="room-description" className="text-sm">Descricao da sala</Label>
+                <Textarea
+                  id="room-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Exemplo: laboratorio com 30 maquinas e projetor"
+                  className="min-h-20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="room-location" className="flex items-center gap-2 text-sm">
+                  <MapPin className="w-4 h-4" />
+                  Localizacao
+                </Label>
+                <Input
+                  id="room-location"
+                  value={formData.location}
+                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="Exemplo: Bloco A, Terreo"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="room-directions" className="flex items-center gap-2 text-sm">
+                  <ListOrdered className="w-4 h-4" />
+                  Passos para chegar (1 por linha)
+                </Label>
+                <Textarea
+                  id="room-directions"
+                  value={formData.directionsText}
+                  onChange={(e) => setFormData(prev => ({ ...prev, directionsText: e.target.value }))}
+                  placeholder={'Entre pelo portao principal\nSiga para o Bloco A\n...'}
+                  className="min-h-28"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-[#1f3c68] hover:bg-[#2d4d7f] text-white"
+                disabled={saving || savingDetails}
+              >
+                <Save className="w-4 h-4" />
+                {saving || savingDetails ? 'Salvando detalhes...' : 'Salvar Detalhes da Sala'}
+              </Button>
+            </form>
+          )}
         </div>
       </div>
     </div>

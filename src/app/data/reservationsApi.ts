@@ -23,7 +23,7 @@ export const defaultRecentReservations: RecentReservation[] = [
   {
     id: 2,
     room: 'Sala 205',
-    date: '23/04/2024',
+    date: '23/04/2026',
     time: '10:00 - 12:00',
     responsible: 'Joao Flores',
     avatar: 'JF',
@@ -32,7 +32,7 @@ export const defaultRecentReservations: RecentReservation[] = [
   {
     id: 3,
     room: 'Sala 101',
-    date: '23/04/2024',
+    date: '23/04/2026',
     time: '08:00 - 09:30',
     responsible: 'Maria Souza',
     avatar: 'MS',
@@ -41,7 +41,7 @@ export const defaultRecentReservations: RecentReservation[] = [
   {
     id: 4,
     room: 'Sala 106',
-    date: '19/04/2024',
+    date: '19/04/2026',
     time: '16:00 - 17:30',
     responsible: 'Paula Lima',
     avatar: 'PL',
@@ -50,7 +50,7 @@ export const defaultRecentReservations: RecentReservation[] = [
   {
     id: 5,
     room: 'Sala 103',
-    date: '19/04/2024',
+    date: '19/04/2026',
     time: '10:00 - 11:00',
     responsible: 'Carlos Nunes',
     avatar: 'CN',
