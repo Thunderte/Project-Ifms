@@ -7,9 +7,9 @@ export function Navigation() {
 
   const menuItems = [
     { icon: Home, label: 'Início', path: '/inicio' },
-    { icon: Search, label: 'Cadastro', path: '/gerenciamento' },
-    { icon: Calendar, label: 'Reservas', path: '/gerenciamento' },
-    { icon: Users, label: 'Usuários', path: '/gerenciamento' },
+    { icon: Search, label: 'Cadastro', path: '/gerenciamento/cadastro' },
+    { icon: Calendar, label: 'Reservas', path: '/gerenciamento/reservas' },
+    { icon: Users, label: 'Usuários', path: '/gerenciamento/usuarios' },
   ];
 
   return (

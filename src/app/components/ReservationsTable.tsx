@@ -2,10 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { AlertCircle, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, RefreshCcw } from 'lucide-react';
+import { AlertCircle, BarChart3, Calendar, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock3, Download, RefreshCcw, XCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { NewReservationDialog } from './NewReservationDialog';
-import { NewRoomDialog } from './NewRoomDialog';
 import { defaultRecentReservations, getRecentReservations, type RecentReservation } from '../data/reservationsApi';
 
 export function ReservationsTable() {
@@ -57,6 +56,29 @@ export function ReservationsTable() {
     return `Ultima sincronizacao: ${lastSync.toLocaleTimeString('pt-BR')}`;
   }, [lastSync]);
 
+  const reservationSummary = useMemo(() => {
+    const total = reservations.length;
+    const active = reservations.filter((reservation) => reservation.status === 'Ativa').length;
+    const completed = reservations.filter((reservation) => reservation.status === 'Concluida').length;
+    const canceled = reservations.filter((reservation) => reservation.status === 'Cancelada').length;
+
+    return { total, active, completed, canceled };
+  }, [reservations]);
+
+  const occupancyRate = useMemo(() => {
+    if (reservationSummary.total === 0) {
+      return 0;
+    }
+
+    return Math.round((reservationSummary.active / reservationSummary.total) * 100);
+  }, [reservationSummary]);
+
+  const upcomingAgenda = useMemo(() => {
+    return reservations
+      .filter((reservation) => reservation.status === 'Ativa')
+      .slice(0, 4);
+  }, [reservations]);
+
   const getStatusClass = (status: RecentReservation['status']) => {
     if (status === 'Concluida') {
       return 'bg-blue-600 hover:bg-blue-700 text-white';
@@ -97,6 +119,41 @@ export function ReservationsTable() {
           API indisponivel no momento. Exibindo valores padrao automaticamente.
         </div>
       )}
+
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+          <p className="text-xs uppercase tracking-wide text-gray-500">Total de reservas</p>
+          <p className="text-2xl font-bold text-[#1f3c68] mt-1">{reservationSummary.total}</p>
+          <p className="text-xs text-gray-500 mt-1">No recorte exibido</p>
+        </div>
+
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs uppercase tracking-wide text-emerald-700">Ativas</p>
+            <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+          </div>
+          <p className="text-2xl font-bold text-emerald-700 mt-1">{reservationSummary.active}</p>
+          <p className="text-xs text-emerald-700/80 mt-1">Em andamento ou futuras</p>
+        </div>
+
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs uppercase tracking-wide text-blue-700">Concluidas</p>
+            <BarChart3 className="w-4 h-4 text-blue-700" />
+          </div>
+          <p className="text-2xl font-bold text-blue-700 mt-1">{reservationSummary.completed}</p>
+          <p className="text-xs text-blue-700/80 mt-1">Historico recente</p>
+        </div>
+
+        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs uppercase tracking-wide text-rose-700">Canceladas</p>
+            <XCircle className="w-4 h-4 text-rose-700" />
+          </div>
+          <p className="text-2xl font-bold text-rose-700 mt-1">{reservationSummary.canceled}</p>
+          <p className="text-xs text-rose-700/80 mt-1">Demandas com replanejamento</p>
+        </div>
+      </div>
 
       {/* Filters */}
       <div className="flex items-center gap-4 mb-6">
@@ -190,6 +247,60 @@ export function ReservationsTable() {
         </Table>
       </div>
 
+      <div className="mt-6 grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Clock3 className="w-4 h-4 text-[#1f3c68]" />
+            <h3 className="text-sm font-semibold text-[#1f3c68]">Proximas reservas ativas</h3>
+          </div>
+
+          {upcomingAgenda.length > 0 ? (
+            <div className="space-y-2">
+              {upcomingAgenda.map((reservation) => (
+                <div key={`agenda-${reservation.id}`} className="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{reservation.room}</p>
+                    <p className="text-xs text-gray-500">{reservation.responsible}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-[#1f3c68] font-semibold">{reservation.time}</p>
+                    <p className="text-xs text-gray-500">{reservation.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">Sem reservas ativas para o periodo atual.</p>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="w-4 h-4 text-[#1f3c68]" />
+            <h3 className="text-sm font-semibold text-[#1f3c68]">Resumo operacional do turno</h3>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-3">
+            Taxa estimada de ocupacao com base nas reservas ativas do recorte atual.
+          </p>
+
+          <div className="h-2.5 rounded-full bg-gray-100 overflow-hidden mb-3">
+            <div className="h-full bg-gradient-to-r from-[#1f5ea4] to-[#1f8c6d]" style={{ width: `${occupancyRate}%` }} />
+          </div>
+
+          <p className="text-sm font-semibold text-[#1f3c68] mb-3">{occupancyRate}% de ocupacao prevista</p>
+
+          <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
+            <div className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+              Janela de pico: 10:00 - 12:00
+            </div>
+            <div className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
+              Tempo medio de uso: 1h30
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Pagination */}
       <div className="flex items-center justify-center gap-2 mt-6">
         <Button variant="outline" size="sm" className="w-9 h-9 p-0">
@@ -225,7 +336,6 @@ export function ReservationsTable() {
       {/* Action Buttons */}
       <div className="flex items-center gap-4 mt-8">
         <NewReservationDialog />
-        <NewRoomDialog />
         <Button variant="outline" className="flex items-center gap-2">
           <Download className="w-4 h-4" />
           Exportar

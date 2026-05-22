@@ -1,7 +1,9 @@
 import { createBrowserRouter, redirect } from 'react-router';
 import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
-import { ManagementPage } from './pages/ManagementPage';
+import { ManagementCadastroPage } from './pages/ManagementCadastroPage';
+import { ManagementReservasPage } from './pages/ManagementReservasPage';
+import { ManagementUsuariosPage } from './pages/ManagementUsuariosPage';
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +20,18 @@ export const router = createBrowserRouter([
   },
   {
     path: '/gerenciamento',
-    Component: ManagementPage,
+    loader: () => redirect('/gerenciamento/cadastro'),
+  },
+  {
+    path: '/gerenciamento/cadastro',
+    Component: ManagementCadastroPage,
+  },
+  {
+    path: '/gerenciamento/reservas',
+    Component: ManagementReservasPage,
+  },
+  {
+    path: '/gerenciamento/usuarios',
+    Component: ManagementUsuariosPage,
   },
 ]);

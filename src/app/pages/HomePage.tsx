@@ -490,7 +490,7 @@ export function HomePage() {
 
           {/* Copyright */}
           <div className="border-t border-white/20 pt-6 text-center text-sm text-blue-100">
-            <p>© 2024 Instituto Federal de Mato Grosso do Sul - IFMS. Todos os direitos reservados.</p>
+            <p>© 2026 Instituto Federal de Mato Grosso do Sul - IFMS. Todos os direitos reservados.</p>
             <p className="mt-2">Desenvolvido pela Equipe de Tecnologia do TADS 3 e 4</p>
           </div>
         </div>
