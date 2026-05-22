@@ -12,6 +12,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/inicio',
+    loader: requireAuth,
     Component: HomePage,
   },
   {
