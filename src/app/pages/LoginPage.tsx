@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const authDefaults = {
   email: 'visitante@ifms.edu.br',
-  senha: 'ifms@123',
+  senha: 'senha123',
 };
 
 export function LoginPage() {
