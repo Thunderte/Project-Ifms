@@ -80,7 +80,7 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
   const meta = sectionMeta[section];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-zinc-950">
       <Header />
       <Navigation />
 
@@ -90,8 +90,8 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
           <h1 className="text-3xl font-bold text-[#1f3c68] mb-2">
             {meta.title}
           </h1>
-          <p className="text-sm text-gray-600 mb-4">{meta.subtitle}</p>
-          <div className="h-px bg-gray-200"></div>
+          <p className="text-sm text-gray-600 dark:text-zinc-400 mb-4">{meta.subtitle}</p>
+          <div className="h-px bg-gray-200 dark:bg-zinc-700"></div>
         </div>
 
         {section === 'cadastro' && (
@@ -106,7 +106,7 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
             </div>
 
             {loading ? (
-              <div className="bg-white rounded-xl shadow-md p-12 flex items-center justify-center text-gray-400 gap-3 mb-8">
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-md p-12 flex items-center justify-center text-gray-400 dark:text-zinc-500 gap-3 mb-8">
                 <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -140,7 +140,7 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
 
         {section === 'reservas' && (
           <>
-            <div className="mb-6 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm text-[#1f3c68]">
+            <div className="mb-6 rounded-xl border border-blue-100 dark:border-blue-800 bg-blue-50/70 dark:bg-blue-900/20 px-4 py-3 text-sm text-[#1f3c68] dark:text-blue-300">
               Visualizacao dedicada para operacao de reservas. Os dados abaixo ajudam no acompanhamento diario da ocupacao.
             </div>
             <ReservationsTable />
@@ -150,20 +150,20 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
         {section === 'usuarios' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl shadow-md p-5">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Usuarios ativos</p>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-md p-5">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-zinc-400">Usuarios ativos</p>
                 <p className="text-3xl font-bold text-[#1f3c68] mt-2">32</p>
-                <p className="text-sm text-gray-500 mt-1">Com acesso operacional ao sistema</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-500 mt-1">Com acesso operacional ao sistema</p>
               </div>
-              <div className="bg-white rounded-xl shadow-md p-5">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Perfis administrativos</p>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-md p-5">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-zinc-400">Perfis administrativos</p>
                 <p className="text-3xl font-bold text-emerald-700 mt-2">6</p>
-                <p className="text-sm text-gray-500 mt-1">Permissao para editar mapa e detalhes</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-500 mt-1">Permissao para editar mapa e detalhes</p>
               </div>
-              <div className="bg-white rounded-xl shadow-md p-5">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Aguardando aprovacao</p>
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-md p-5">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-zinc-400">Aguardando aprovacao</p>
                 <p className="text-3xl font-bold text-amber-600 mt-2">3</p>
-                <p className="text-sm text-gray-500 mt-1">Solicitacoes pendentes de liberacao</p>
+                <p className="text-sm text-gray-500 dark:text-zinc-500 mt-1">Solicitacoes pendentes de liberacao</p>
               </div>
             </div>
 
@@ -206,9 +206,9 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-semibold text-[#1f3c68] mb-2">Regras de permissao</h3>
-              <p className="text-sm text-gray-600">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-semibold text-[#1f3c68] dark:text-blue-300 mb-2">Regras de permissao</h3>
+              <p className="text-sm text-gray-600 dark:text-zinc-400">
                 Administradores podem editar layout e detalhes de sala. Coordenadores validam reservas e servidores registram uso.
                 Mantenha a revisao de perfis em ciclo mensal para reduzir riscos operacionais.
               </p>
@@ -217,7 +217,7 @@ export function ManagementPage({ section = 'cadastro' }: ManagementPageProps) {
         )}
 
         {/* Footer */}
-        <div className="text-center mt-12 text-sm text-gray-600">
+        <div className="text-center mt-12 text-sm text-gray-600 dark:text-zinc-500">
           © 2026 IFMS - Instituto Federal de Mato Grosso do Sul
         </div>
       </div>
